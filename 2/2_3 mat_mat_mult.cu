@@ -2,37 +2,37 @@
 #include<stdio.h>
 
 int main(void) {
-    void MatrixMultiplication(float *, float *, float *, int);
+    void MatrixMultiplication(int *,int *, int *, int);
     const int Width = 3;
-    float M[Width*Width], N[Width*Width], P[Width*Width];
+    int M[Width*Width], N[Width*Width], P[Width*Width];
     for(int i = 0; i < (Width*Width) ; i++) {
-        M[i] = rand()%10;
-        N[i] = rand()%10;
+        M[i] = rand()%20 +3;
+        N[i] = rand()%20 +4;
         P[i] = 0;
     }
     printf("First Matrix:\n");
     for(int i = 0; i < (Width*Width) ; i=i+Width) {
     for(int j = 0; j < (Width) ; j++) {
-            printf("%f \t", M[i+j]);
+            printf("%d ", M[i+j]);
         }
-    printf("\n");
+   
     }
     printf("\n");
     printf("Second Matrix:\n");
     for(int i = 0; i < (Width*Width) ; i=i+Width) {
         for(int j = 0; j < (Width) ; j++) {
-                printf("%f \t", N[i+j]);
+                printf("%d ", N[i+j]);
             }
-        printf("\n");
+       
         }
     printf("\n");
     printf("Multiplication :\n");
     MatrixMultiplication(M, N, P, Width);
     for(int i = 0; i < (Width*Width) ; i=i+Width) {
         for(int j = 0; j < (Width) ; j++) {
-                printf("%f \t", P[i+j]);
+                printf("%d ", P[i+j]);
             }
-        printf("\n");
+     
         }
     int quit;
     scanf("%d",&quit);
@@ -40,26 +40,28 @@ int main(void) {
 }
 
 //Matrix multiplication kernel - thread specification
-__global__ void MatrixMulKernel(float *Md, float *Nd, float *Pd, int Width) {
+__global__ void MatrixMulKernel(int *Md, int *Nd, int *Pd, int Width) {
     //2D Thread ID
     int tx = threadIdx.x;
     int ty = threadIdx.y;
 
     //Pvalue stores the Pd element that is computed by the thread
-    float Pvalue = 0;
+    int Pvalue = 0;
 
-    for(int k = 0; k < Width ; ++k) {
-        float Mdelement = Md[ty*Width + k];
-        float Ndelement = Nd[k*Width + tx];
+    for(int k = 0; k < Width ; ++k) 
+    {
+        int Mdelement = Md[ty*Width + k];
+        int Ndelement = Nd[k*Width + tx];
         Pvalue += (Mdelement*Ndelement);
     }
 
     Pd[ty*Width + tx] = Pvalue;
 }
 
-void MatrixMultiplication(float *M, float *N, float *P, int Width) {
-    int size = Width*Width*sizeof(float);
-    float *Md, *Nd, *Pd;
+void MatrixMultiplication(int *M, int *N, int *P, int Width) 
+{
+    int size = Width*Width*sizeof(int);
+    int *Md, *Nd, *Pd;
 
     //Transfer M and N to device memory
     cudaMalloc((void**)&Md, size);
